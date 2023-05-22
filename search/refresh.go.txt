@@ -1,0 +1,116 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"path"
+	"strings"
+	"time"
+)
+
+var (
+	latestFTAList []FTA
+)
+
+const (
+	ActionDelete = "delete"
+	ActionIndex  = "index"
+)
+
+//File, Time, Action
+type FTA struct {
+	File    string
+	ModTime time.Time
+	Action  string
+}
+
+func NewFTAList(directory string) []FTA {
+	entryList, err := os.ReadDir(directory)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	var list []FTA
+	for _, v := range entryList {
+		if v.IsDir() {
+			list = append(list,
+				NewFTAList(path.Join(directory, v.Name()))...)
+		} else {
+			if strings.HasSuffix(v.Name(), ".md") {
+				f := path.Join(directory, v.Name())
+				info, err := os.Stat(f)
+				if err == nil {
+					list = append(list, FTA{
+						File:    f,
+						ModTime: info.ModTime(),
+					})
+				}
+			}
+		}
+	}
+	return list
+}
+
+func GetModifyList(directory string) []FTA {
+	newList := NewFTAList(directory)
+
+	var modList []FTA
+
+	if len(newList) == 0 {
+		for k := range latestFTAList {
+			latestFTAList[k].Action = ActionDelete
+			modList = append(modList, latestFTAList[k])
+		}
+		return modList
+	}
+
+	latestMap := make(map[string]*FTA)
+	for k, v := range latestFTAList {
+		latestMap[v.File] = &latestFTAList[k]
+	}
+
+	for k, v := range newList {
+		fta, exists := latestMap[v.File]
+		if exists {
+			delete(latestMap, v.File)
+			if !v.ModTime.After(fta.ModTime) {
+				continue
+			}
+		}
+		newList[k].Action = ActionIndex
+		modList = append(modList, newList[k])
+	}
+
+	for k := range latestMap {
+		latestMap[k].Action = ActionDelete
+		modList = append(modList, *latestMap[k])
+	}
+
+	latestFTAList = newList
+
+	return modList
+}
+
+func RefreshSearchEngine() {
+	modList := GetModifyList(mainConfig.WebRoot)
+	for _, v := range modList {
+		switch v.Action {
+		case ActionDelete:
+			esf := NewESFile(v.File)
+			err := esf.ESDelete(globalES8)
+			if err != nil {
+				fmt.Println(err)
+			}
+		case ActionIndex:
+			esf := NewESFile(v.File)
+			err := esf.ESDelete(globalES8)
+			if err != nil {
+				fmt.Println(err)
+			}
+			err = esf.LoadContent().ESCreate(globalES8)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
+}

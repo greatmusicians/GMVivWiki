@@ -1,0 +1,161 @@
+package main
+
+import (
+	bmo "GreatMusicians/Brahms/Mozart"
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"html/template"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"strings"
+
+	"github.com/elastic/go-elasticsearch/v8/esapi"
+)
+
+const (
+	IndexFile = "file"
+)
+
+type ESFile struct {
+	DocID    string `json:"DocID"`
+	Filename string `json:"Filename"`
+	Content  string `json:"Content"`
+}
+
+func NewESFile(f string) *ESFile {
+	return &ESFile{
+		DocID:    GetFileID(f),
+		Filename: f,
+	}
+}
+
+func (e *ESFile) LoadContent() *ESFile {
+	contentBytes, _ := ioutil.ReadFile(e.Filename)
+	e.Content = string(contentBytes)
+	return e
+}
+
+func (e *ESFile) Reader() io.Reader {
+	jsonBytes, _ := json.Marshal(e)
+	return bytes.NewReader(jsonBytes)
+}
+
+/*
+GET wiki_section/_search
+{
+  "query": {
+    "ids": {
+      "values": ["3"]
+    }
+  }
+}
+*/
+func (e *ESFile) ESExists(es8 *bmo.ES8) bool {
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"ids": map[string]interface{}{
+				"values": e.DocID,
+			},
+		},
+	}
+	count, _ := es8.HitsCount([]string{IndexFile}, query)
+	return count > 0
+}
+
+func (e *ESFile) ESDelete(es8 *bmo.ES8) error {
+	req := esapi.DeleteRequest{
+		Index:      IndexFile,
+		DocumentID: e.DocID,
+		Pretty:     true,
+	}
+	resp, err := req.Do(context.Background(), globalES8Client)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == http.StatusOK {
+		return nil
+	}
+	return errors.New(resp.String())
+}
+
+func (e *ESFile) ESCreate(es8 *bmo.ES8) error {
+	req := esapi.CreateRequest{
+		Index:      IndexFile,
+		DocumentID: e.DocID,
+		Body:       e.LoadContent().Reader(),
+		Pretty:     true,
+	}
+	resp, err := req.Do(context.Background(), globalES8Client)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == http.StatusCreated {
+		return nil
+	}
+	return errors.New(resp.String())
+}
+
+func IndexDirectoryToES8(directory string) error {
+	if globalES8 == nil || globalES8Client == nil {
+		return nil
+	}
+	filelist, err := GetFileList(mainConfig.WebRoot)
+	if err != nil {
+		return err
+	}
+	for _, v := range filelist {
+		esf := NewESFile(v)
+		if esf.ESExists(globalES8) {
+			esf.ESDelete(globalES8)
+		}
+		err = esf.LoadContent().ESCreate(globalES8)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+/*
+GET file/_search
+{
+  "query": {
+    "query_string": {
+      "default_field": "Content",
+      "query": "内容"
+    }
+  }
+}
+*/
+func SearchES8(keyword string) ([]Result, error) {
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"query_string": map[string]interface{}{
+				"default_field": "Content",
+				"query":         keyword,
+			},
+		},
+	}
+	jsonBytes, err := globalES8.Search([]string{IndexFile}, query)
+	if err != nil {
+		return nil, err
+	}
+	var esfList []ESFile
+	err = json.Unmarshal(jsonBytes, &esfList)
+	if err != nil {
+		return nil, err
+	}
+	var resultList []Result
+	for _, v := range esfList {
+		hl := strings.ReplaceAll(v.Content, keyword,
+			HightlightPreTag+keyword+HightlightPostTag)
+		resultList = append(resultList, Result{
+			Urlpath: GetUrlpath(v.Filename),
+			Text:    template.HTML(hl),
+		})
+	}
+	return resultList, err
+}

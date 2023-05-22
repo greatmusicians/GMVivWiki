@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/pdf.css' />
+    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/gm_word.css' />
+    <script type="text/javascript" src="{{.BasePath}}/template/js/gm_word.js"></script>
+
+    <script type='text/javascript'>
+        window.onload = function () {
+            gm_word.showAll();
+
+            document.getElementById("complete").innerHTML = "complete";
+        }
+    </script>
+
+</head>
+
+<body>
+    {{ .TOC }}
+    {{ .Body }}
+    <div id="complete" style="display: none;">loading</div>
+</body>
+
+</html>

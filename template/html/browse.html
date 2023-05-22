@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <title>{{.Title}}</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <style>
+      body { 
+      background-color: rgb(204,232,207);
+      font-size: 20pt;
+      line-height: 1.2;
+      margin: 1em 0.5em 1em 1.5em;/*上边距、右边距、下边距、左边距*/
+      padding: 0;
+      word-wrap: break-word;/*允许单词内断行*/
+      word-break: break-all;/*允许单词内断行*/
+      }
+      a{
+      text-decoration: none;
+      }
+      .a-extra {
+      background-color: bisque;
+      text-decoration: none;
+      font-size: 50%;
+      color: #000000;
+      }
+    </style>
+  </head>
+  
+  <body>
+    
+    <ul>
+      {{.Content}}
+    </ul>
+    
+  </body>
+  
+</html>

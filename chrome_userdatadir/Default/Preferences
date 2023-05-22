@@ -1,0 +1,94 @@
+{
+   "alternate_error_pages": {
+      "enabled": false
+   },
+   "autofill": {
+      "credit_card_enabled": false,
+      "profile_enabled": false
+   },
+   "bookmark_bar": {
+      "show_on_all_tabs": true
+   },
+   "browser": {
+      "check_default_browser": false,
+      "has_seen_welcome_page": true,
+      "show_home_button": true
+   },
+   "credentials_enable_autosignin": false,
+   "credentials_enable_service": false,
+   "default_apps": "noinstall",
+   "dns_prefetching": {
+      "enabled": false
+   },
+   "hide_web_store_icon": true,
+   "homepage": "https://www.debian.org",
+   "homepage_is_newtabpage": true,
+   "import_bookmarks": false,
+   "net": {
+      "network_prediction_options": 2
+   },
+   "payments": {
+      "can_make_payment_enabled": false
+   },
+   "profile": {
+      "default_content_setting_values": {
+         "payment_handler": 2
+      }
+   },
+   "protection": {
+      "macs": {
+         "browser": {
+            "show_home_button": "9463DEC4C15E47646D05FD921E0E475249EA15DE77808C4664EF238C54D89FC7"
+         },
+         "default_search_provider_data": {
+            "template_url_data": "575D258E47F940C6887685ABA99A5839CBFE4BA30863349DFE0D0C375AAB8816"
+         },
+         "google": {
+            "services": {
+               "account_id": "E5B4CD7C5FA271A47D07D462465AFD63DBF6A8CDFAFEF4839D13F8F552131486",
+               "last_account_id": "6C67156FD15665D53CD24B5098D16B462BA8B8A0EFDD969A317C3235E973A4A3",
+               "last_username": "24FCEF9BF7DF12A2935BE143E58951E09DBAA1D3E0E24430C0FF93009F5D6AFD"
+            }
+         },
+         "homepage": "612967A208F154218AEDE6D1D3C112663279440137971DED3749F688D094D9E2",
+         "homepage_is_newtabpage": "547DD594A200A6C826A149309738E7FAD622F4D7B1B875CD6ECB2E96F2940E21",
+         "media": {
+            "storage_id_salt": "E1848263E6199A89D48A7FDF168364BF0F31246A18227F3D149D4088C7F4D667"
+         },
+         "pinned_tabs": "5FF265371BB528ED630092A900058C08217611AB525D4C12B41C44C008BAC799",
+         "prefs": {
+            "preference_reset_time": "95C909F3D0669D5931907B455F099C510E7770D9F0BA6FF13E4C76101B44F757"
+         },
+         "safebrowsing": {
+            "incidents_sent": "569707D9A4676B72F48BE92B740BE3EF895419C8A646F1AE1BA70BD9C3B41845"
+         },
+         "search_provider_overrides": "359EACF4B741613E008062C66B6DAD80C68DDBC38DABA7455548A8BEE34C3FE7",
+         "session": {
+            "restore_on_startup": "F9BD26F5D1AA6AB5258754888529CB2A82AE68D1703BCC2A97DEAEE5DDDA190E",
+            "startup_urls": "8BB8DBC1D7CA5C58F821C38254FB2B9C874F8EE9B9905B57DE48C731C6C91837"
+         }
+      }
+   },
+   "safebrowsing": {
+      "enabled": false
+   },
+   "search": {
+      "suggest_enabled": false
+   },
+   "search_provider_overrides": [ {
+      "enabled": true,
+      "encoding": "UTF-8",
+      "favicon_url": "https://duckduckgo.com/favicon.ico",
+      "id": 2,
+      "keyword": "duckduckgo.com",
+      "name": "DuckDuckGo",
+      "new_tab_url": "https://duckduckgo.com/chrome_newtab",
+      "search_url": "https://duckduckgo.com/?q={searchTerms}",
+      "suggest_url": "https://duckduckgo.com/ac/?q={searchTerms}&type=list"
+   } ],
+   "search_provider_overrides_version": 1,
+   "signin": {
+      "allowed": false,
+      "allowed_on_next_startup": false
+   }
+}

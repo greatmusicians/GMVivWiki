@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="{{.Lang}}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ .Title }}</title>
+
+    <script type="text/javascript" src="/js/jquery-3.6.3.min.js"></script>
+    <!--[if IE 8]>
+    <script type="text/javascript" src="/js/jquery-1.12.4.min.js"></script>
+    <![endif]-->
+
+    <script src="/js/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/js/bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/js/bootstrap4-glyphicons/css/bootstrap-glyphicons.min.css">
+
+    <link rel="stylesheet" href="/js/highlight/monokai.min.css">
+    <link rel='stylesheet' type='text/css' href='/css/highlight.css' />
+    <script type="text/javascript" src="/js/highlight/highlight.min.js"></script>
+    <!--script>
+        hljs.highlightAll();
+    </script-->
+
+    <link rel='stylesheet' type='text/css' href='/css/gm_search.css' />
+    <script type="text/javascript" src="/js/gm_search.js"></script>
+    <script type="text/javascript" src="/js/gm_audio.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/gm_word.css' />
+    <script type="text/javascript" src="/js/gm_word.js"></script>
+
+    <link rel='stylesheet' type='text/css' href='/css/site_md.css' />
+
+    <script type='text/javascript'>
+        window.onload = function () {
+            gm_word.showAll();
+        }
+    </script>
+
+</head>
+
+<body>
+    <div class="search">
+        <input type="search" id="search_keyword" onkeydown="autosearch(event)">
+        <button type="button" onclick=javascript:search()>搜索</button>
+    </div>
+
+    {{ .TOC }}
+    {{ .Body }}
+
+    <div class="modal fade" id="word-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="word-question" class="modal-header">
+                    question
+                </div>
+                <div id="word-answer" class="modal-body">answer</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary"  onclick="gm_word.showAnswer()">显示答案</button>
+                    <button type="button" class="btn btn-primary" onclick="gm_word.nextTest()">下一个</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+</body>
+
+</html>

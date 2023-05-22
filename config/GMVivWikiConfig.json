@@ -1,0 +1,11 @@
+{
+    "ListenPort": "1235",
+    "WebRoot": "docs",
+    "AllowIPList": [{
+        "IPRegexp": "^.*$",
+        "Allow": true,
+        "Comment": ""
+    }],
+    "PublicPathList": [],
+    "SupportExportPDF": true
+}
