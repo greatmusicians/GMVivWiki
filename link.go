@@ -99,7 +99,7 @@ func getIndexContent(realpath, urlpath string) (string, error) {
 
 	addHeader := false
 	for _, v1 := range entryList {
-		if v1.IsDir() {
+		if IsDir(realpath, v1) {
 			continue
 		}
 		if !addHeader {
@@ -111,7 +111,7 @@ func getIndexContent(realpath, urlpath string) (string, error) {
 	}
 
 	for _, v1 := range entryList {
-		if !v1.IsDir() {
+		if !IsDir(realpath, v1) {
 			continue
 		}
 		content += fmt.Sprintf("\n# %v\n", v1.Name())

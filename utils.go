@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -68,4 +69,28 @@ func GetSortedEntryList(directory string) ([]fs.DirEntry, error) {
 		return newList[i].Name() < newList[j].Name()
 	})
 	return newList, nil
+}
+
+/*
+如果是软连接，则继续追踪是否是目录
+*/
+func IsDir(directory string, entry fs.DirEntry) bool {
+	if entry.IsDir() {
+		return true
+	}
+	if entry.Type()&fs.ModeSymlink == 0 {
+		return false
+	}
+	fullpath := path.Join(directory, entry.Name())
+	realpath, err := filepath.EvalSymlinks(fullpath)
+	if err != nil {
+		//invalid link
+		return false
+	}
+	fi, err := os.Stat(realpath)
+	if err != nil {
+		//invalid link
+		return false
+	}
+	return fi.IsDir()
 }
