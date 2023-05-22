@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GMVivWiki/utils"
 	"fmt"
 	"html"
 	"os"
@@ -27,7 +28,7 @@ style="min-width: 400px; background-color:rgba(0,0,0,0); display: inline-block; 
 <div class="card-body" style="padding: 5px 5px 5px 30px">%v</div>
 </div>`
 	tLinkMain := `<a class="index-link" href="%v?lang=de">%v</a> `
-	showName := TemplateExecuteReplacer.Replace(name)
+	showName := utils.TemplateExecuteReplacer.Replace(name)
 	if isDir {
 		link := fmt.Sprintf(tLinkMain, html.EscapeString(urlpath), showName)
 		link += genLinkExtra(urlpath, isDir)
@@ -47,7 +48,7 @@ func genLinkBrowse(name, urlpath string, isDir bool) string {
 	if isDir {
 		return fmt.Sprintf("<li><a href=\"%v\">[D] %v</a> %v</li>\n",
 			html.EscapeString(urlpath),
-			TemplateExecuteReplacer.Replace(name),
+			utils.TemplateExecuteReplacer.Replace(name),
 			genLinkExtra(urlpath, isDir))
 	}
 	if name == "favicon.ico" {
@@ -55,12 +56,12 @@ func genLinkBrowse(name, urlpath string, isDir bool) string {
 	}
 	return fmt.Sprintf("<li><a href=\"%v?lang=de\">[F] %v</a> %v</li>\n",
 		html.EscapeString(urlpath),
-		TemplateExecuteReplacer.Replace(name),
+		utils.TemplateExecuteReplacer.Replace(name),
 		genLinkExtra(urlpath, isDir))
 }
 
 func getBrowseList(realpath, pathprefix string) (string, error) {
-	entryList, err := GetSortedEntryList(realpath)
+	entryList, err := utils.GetSortedEntryList(realpath)
 	if err != nil {
 		return "", err
 	}
@@ -92,14 +93,14 @@ func getIndexContent(realpath, urlpath string) (string, error) {
 	}
 
 	content := ``
-	entryList, err := GetSortedEntryList(realpath)
+	entryList, err := utils.GetSortedEntryList(realpath)
 	if err != nil {
 		return "", err
 	}
 
 	addHeader := false
 	for _, v1 := range entryList {
-		if IsDir(realpath, v1) {
+		if utils.IsDir(realpath, v1) {
 			continue
 		}
 		if !addHeader {
@@ -111,12 +112,12 @@ func getIndexContent(realpath, urlpath string) (string, error) {
 	}
 
 	for _, v1 := range entryList {
-		if !IsDir(realpath, v1) {
+		if !utils.IsDir(realpath, v1) {
 			continue
 		}
 		content += fmt.Sprintf("\n# %v\n", v1.Name())
 		content += genLinkIndex(v1.Name(), path.Join(urlpath, v1.Name()), true)
-		el, err := GetSortedEntryList(path.Join(realpath, v1.Name()))
+		el, err := utils.GetSortedEntryList(path.Join(realpath, v1.Name()))
 		if err != nil {
 			return "", err
 		}

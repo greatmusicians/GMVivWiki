@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GMVivWiki/utils"
 	"encoding/json"
 	"os"
 	"path"
@@ -32,7 +33,7 @@ var allowList []*regexp.Regexp
 var publicList []*regexp.Regexp
 
 func initGlobals() error {
-	basepath, err := GetExecutableFullpath()
+	basepath, err := utils.GetExecutableFullpath()
 	if err != nil {
 		return err
 	}

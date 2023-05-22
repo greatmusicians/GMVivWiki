@@ -1,6 +1,7 @@
 package search
 
 import (
+	"GMVivWiki/utils"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -23,7 +24,7 @@ func GetFileList(directory string) ([]string, error) {
 	}
 	var result []string
 	for _, v := range entryList {
-		if v.IsDir() {
+		if utils.IsDir(directory, v) {
 			l, err := GetFileList(path.Join(directory, v.Name()))
 			if err != nil {
 				return nil, err

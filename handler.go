@@ -13,6 +13,7 @@ import (
 
 	"GMVivWiki/markup"
 	"GMVivWiki/search"
+	"GMVivWiki/utils"
 )
 
 func NewHandler(webroot string) func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
@@ -152,7 +153,7 @@ func checkAccessAllowed(w http.ResponseWriter, r *http.Request, next http.Handle
 			return
 		}
 	}
-	realip := GetIPFromRequest(r).String()
+	realip := utils.GetIPFromRequest(r).String()
 	for _, v := range allowList {
 		if v.MatchString(realip) {
 			next(w, r)

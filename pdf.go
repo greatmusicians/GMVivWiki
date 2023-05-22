@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"GMVivWiki/markup"
+	"GMVivWiki/utils"
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
@@ -26,7 +27,7 @@ func generatePdf(mdfile, lang string, withTOC bool) (string, error) {
 }
 
 func writeTmpHtml(uuid string, data []byte) (string, error) {
-	basepath, err := GetExecutableFullpath()
+	basepath, err := utils.GetExecutableFullpath()
 	if err != nil {
 		return "", err
 	}
@@ -39,7 +40,7 @@ func writeTmpHtml(uuid string, data []byte) (string, error) {
 }
 
 func writeTmpPdf(uuid string, data []byte) (string, error) {
-	basepath, err := GetExecutableFullpath()
+	basepath, err := utils.GetExecutableFullpath()
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +66,7 @@ func generateTmpFileHtml(mdfile, uuid, lang string, withTOC bool) (string, error
 		toc = ""
 	}
 
-	basepath, err := GetExecutableFullpath()
+	basepath, err := utils.GetExecutableFullpath()
 	if err != nil {
 		return "", err
 	}
