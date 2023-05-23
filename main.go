@@ -23,7 +23,6 @@ func main() {
 	router.PathPrefix("/").Handler(
 		negroni.New(
 			negroni.HandlerFunc(checkAccessAllowed),
-			negroni.HandlerFunc(checkPathInWebRoot),
 			negroni.HandlerFunc(NewHandler(mainConfig.WebRoot)),
 		))
 

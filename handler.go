@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 
 	"GMVivWiki/markup"
@@ -161,19 +160,4 @@ func checkAccessAllowed(w http.ResponseWriter, r *http.Request, next http.Handle
 		}
 	}
 	io.WriteString(w, "Access denied!\nYour ip is "+realip+"\n")
-}
-
-func checkPathInWebRoot(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	urlpath := r.URL.Path
-	realpath := path.Join(mainConfig.WebRoot, urlpath)
-	rel, err := filepath.Rel(mainConfig.WebRoot, realpath)
-	if err != nil {
-		io.WriteString(w, err.Error())
-		return
-	}
-	if strings.Contains(rel, "..") {
-		io.WriteString(w, "Access denied!\nPath out of web root.")
-		return
-	}
-	next(w, r)
 }
