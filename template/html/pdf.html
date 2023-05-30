@@ -4,13 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/pdf.css' />
-    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/gm_word.css' />
-    <script type="text/javascript" src="{{.BasePath}}/template/js/gm_word.js"></script>
+    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/gm_danci.css' />
+    <script type="text/javascript" src="{{.BasePath}}/template/js/gm_danci.js"></script>
+    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/gm_wort.css' />
+    <script type="text/javascript" src="{{.BasePath}}/template/js/gm_wort.js"></script>
+    <link rel='stylesheet' type='text/css' href='{{.BasePath}}/template/css/gm_qsa.css' />
+    <script type="text/javascript" src="{{.BasePath}}/template/js/gm_qsa.js"></script>
 
     <script type='text/javascript'>
         window.onload = function () {
-            gm_word.showAll();
-
+            GMDanCi.init(false);
+            GMWort.init(false);
+            GMQSA.init(false);
             document.getElementById("complete").innerHTML = "complete";
         }
     </script>

@@ -61,9 +61,16 @@ func GetSortedEntryList(directory string) ([]fs.DirEntry, error) {
 	}
 	var newList []fs.DirEntry
 	for k, v := range entryList {
-		if !strings.HasPrefix(v.Name(), ".") {
-			newList = append(newList, entryList[k])
+		if strings.HasPrefix(v.Name(), ".") {
+			continue
 		}
+		if IsDir(directory, v) {
+			hiddenFile := path.Join(directory, v.Name(), "hidden.txt")
+			if _, err = os.Stat(hiddenFile); err == nil {
+				continue
+			}
+		}
+		newList = append(newList, entryList[k])
 	}
 	sort.Slice(newList, func(i, j int) bool {
 		return newList[i].Name() < newList[j].Name()

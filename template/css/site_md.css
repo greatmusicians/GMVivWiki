@@ -92,6 +92,8 @@ pre {
     padding: 0pt;
     font-family: sans-serif;
     overflow: auto;
+    overflow-x: hidden;
+    overflow-y: hidden;
     margin: 10px 0px 10px 2em;
     text-indent: 0;
     width: 90%;
@@ -143,6 +145,12 @@ td {
 img {
     margin: 10px 0px 10px 2em;
     max-width: 90%;
+}
+
+audio {
+    text-indent: 0;
+    /*width: 500px;
+    height: 54px;*/
 }
 
 #table-of-contents {

@@ -24,15 +24,23 @@
 
     <link rel='stylesheet' type='text/css' href='/css/gm_search.css' />
     <script type="text/javascript" src="/js/gm_search.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/gm_modal.css' />
     <script type="text/javascript" src="/js/gm_audio.js"></script>
-    <link rel='stylesheet' type='text/css' href='/css/gm_word.css' />
-    <script type="text/javascript" src="/js/gm_word.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/gm_danci.css' />
+    <script type="text/javascript" src="/js/gm_danci.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/gm_wort.css' />
+    <script type="text/javascript" src="/js/gm_wort.js"></script>
+    <link rel='stylesheet' type='text/css' href='/css/gm_qsa.css' />
+    <script type="text/javascript" src="/js/gm_qsa.js"></script>
 
     <link rel='stylesheet' type='text/css' href='/css/site_md.css' />
 
     <script type='text/javascript'>
         window.onload = function () {
-            gm_word.showAll();
+            GMAudio.init(true);
+            GMDanCi.init(true);
+            GMWort.init(true);
+            GMQSA.init(true);
         }
     </script>
 
@@ -47,16 +55,14 @@
     {{ .TOC }}
     {{ .Body }}
 
-    <div class="modal fade" id="word-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div id="word-question" class="modal-header">
-                    question
-                </div>
-                <div id="word-answer" class="modal-body">answer</div>
+                <div id="modal1-question" class="modal-header">question</div>
+                <div id="modal1-answer" class="modal-body">answer</div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary"  onclick="gm_word.showAnswer()">显示答案</button>
-                    <button type="button" class="btn btn-primary" onclick="gm_word.nextTest()">下一个</button>
+                    <button id="modal1-show" type="button" class="btn btn-primary">显示答案</button>
+                    <button id="modal1-next" type="button" class="btn btn-primary">下一个</button>
                 </div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
