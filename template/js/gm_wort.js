@@ -26,9 +26,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 // @ts-ignore
 var GMWort;
 (function (GMWort) {
-    var GlobalWortList = new Array();
-    var Wort = /** @class */ (function () {
-        function Wort(e) {
+    var GlobalList = new Array();
+    var GlobalTestMap = new Map();
+    var Data = /** @class */ (function () {
+        function Data(e) {
             var _this = this;
             this.Kapitel = "";
             this.Typ = "";
@@ -60,7 +61,7 @@ var GMWort;
                 }
             }
         }
-        Wort.prototype.validate = function () {
+        Data.prototype.validate = function () {
             switch (this.Typ) {
                 case "Verb":
                     return this.Data.length >= 4;
@@ -74,7 +75,7 @@ var GMWort;
                     return false;
             }
         };
-        Wort.prototype.html = function () {
+        Data.prototype.html = function () {
             var innerHTML = "<div class=\"wort\">";
             innerHTML += "<div style=\"display: flex;\">";
             switch (this.Typ) {
@@ -105,30 +106,90 @@ var GMWort;
             innerHTML += "</div>";
             return innerHTML;
         };
-        return Wort;
+        Data.prototype.getQuestion = function () {
+            var qList = new Array();
+            var addQuestion = function () {
+                var textList = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    textList[_i] = arguments[_i];
+                }
+                textList.forEach(function (v) {
+                    if (v.length > 0)
+                        qList.push(v);
+                });
+            };
+            switch (this.Typ) {
+                case "Verb":
+                    addQuestion(this.Data[0], this.Data[3]);
+                    break;
+                case "Nomen":
+                    addQuestion(this.Data[1], this.Data[3]);
+                    break;
+                case "2":
+                    addQuestion(this.Data[0], this.Data[1]);
+                    break;
+                case "einfach":
+                    if (this.Data[0].match("^(der|die|das) .+")) {
+                        addQuestion(this.Data[0].substring(4), this.Data[1]);
+                    }
+                    else {
+                        addQuestion(this.Data[0], this.Data[1]);
+                    }
+                    break;
+            }
+            return qList[Math.floor((Math.random() * qList.length))];
+        };
+        Data.prototype.getAnswer = function () {
+            return "".concat(this.Data.join(", "), "<br/>").concat(this.Beispiel, "<br/>").concat(this.Notiz);
+        };
+        return Data;
+    }());
+    /* 目的是一轮测试完，再进行下一轮，防止随机数不均匀，有些条目总也测试不到的情况 */
+    var Test = /** @class */ (function () {
+        function Test(Kapitel) {
+            this.list = [];
+            this.list = GlobalList;
+            if (Kapitel.length > 0) {
+                this.list.filter(function (v) {
+                    return v.Kapitel == Kapitel;
+                });
+            }
+        }
+        Test.prototype.random = function () {
+            var index = Math.floor((Math.random() * this.list.length));
+            var d = this.list[index];
+            this.list.splice(index, 1);
+            return d;
+        };
+        Test.prototype.empty = function () {
+            return this.list.length == 0;
+        };
+        return Test;
     }());
     function init(showButton) {
         var elementList = Array.from(document.getElementsByClassName("Wort"));
         elementList.forEach(function (e) {
-            var w = new Wort(e);
+            var w = new Data(e);
             if (w.validate()) {
                 e.innerHTML = w.html();
-                GlobalWortList.push(w);
+                GlobalList.push(w);
             }
             else {
                 e.innerHTML += "<span style=\"background-color: red;\">validate error<span >";
             }
         });
-        if (GlobalWortList.length == 0) {
+        if (GlobalList.length == 0) {
             return;
         }
         if (showButton)
-            initButton(GlobalWortList);
+            initButton();
     }
     GMWort.init = init;
-    function initButton(wortList) {
+    function initButton() {
+        if (GlobalList.length == 0)
+            return;
         var buttonSet = new Set;
-        wortList.forEach(function (v) {
+        GlobalList.forEach(function (v) {
             buttonSet.add(v.Kapitel);
         });
         buttonSet.delete("");
@@ -166,51 +227,6 @@ var GMWort;
         button.innerHTML = text;
         return button;
     }
-    function genTest(Kapitel) {
-        var list = GlobalWortList;
-        if (Kapitel.length > 0) {
-            list.filter(function (v) {
-                return v.Kapitel == Kapitel;
-            });
-        }
-        var w = list[Math.floor((Math.random() * list.length))];
-        var questionList = new Array();
-        var addQuestion = function () {
-            var textList = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                textList[_i] = arguments[_i];
-            }
-            textList.forEach(function (v) {
-                if (v.length > 0)
-                    questionList.push(v);
-            });
-        };
-        switch (w.Typ) {
-            case "Verb":
-                addQuestion(w.Data[0], w.Data[3]);
-                break;
-            case "Nomen":
-                addQuestion(w.Data[1], w.Data[3]);
-                break;
-            case "2":
-                addQuestion(w.Data[0], w.Data[1]);
-                break;
-            case "einfach":
-                if (w.Data[0].match("^(der|die|das) .+")) {
-                    addQuestion(w.Data[0].substring(4), w.Data[1]);
-                }
-                else {
-                    addQuestion(w.Data[0], w.Data[1]);
-                }
-                break;
-        }
-        var question = questionList[Math.floor((Math.random() * questionList.length))];
-        var answer = "".concat(w.Data.join(", "), "<br/>").concat(w.Beispiel, "<br/>").concat(w.Notiz);
-        // @ts-ignore
-        $("#modal1-question").html(question);
-        // @ts-ignore
-        $("#modal1-answer").html(answer);
-    }
     function hiddenAnswer() {
         // @ts-ignore
         $("#modal1-answer").css("visibility", "hidden");
@@ -222,12 +238,22 @@ var GMWort;
     }
     GMWort.showAnswer = showAnswer;
     function nextTest(Kapitel) {
+        var _a, _b;
         hiddenAnswer();
         // @ts-ignore
         $("#modal1-show").attr("onclick", "GMWort.showAnswer()");
         // @ts-ignore
         $("#modal1-next").attr("onclick", "GMWort.nextTest(\"".concat(Kapitel, "\")"));
-        genTest(Kapitel);
+        if (!GlobalTestMap.has(Kapitel) || ((_a = GlobalTestMap.get(Kapitel)) === null || _a === void 0 ? void 0 : _a.empty())) {
+            GlobalTestMap.set(Kapitel, new Test(Kapitel));
+        }
+        var d = (_b = GlobalTestMap.get(Kapitel)) === null || _b === void 0 ? void 0 : _b.random();
+        if (d) {
+            // @ts-ignore
+            $("#modal1-question").html(d.getQuestion());
+            // @ts-ignore
+            $("#modal1-answer").html(d.getAnswer());
+        }
         // @ts-ignore
         $("#modal1").modal('show');
     }

@@ -1,8 +1,9 @@
 // @ts-ignore
 namespace GMQSA {
-    let GlobalQSAList = new Array<QSA>();
+    let GlobalList = new Array<Data>();
+    let GlobalTest: Test;
 
-    class QSA {
+    class Data {
         Q: string = "";
         S: string = "";
         A: string = "";
@@ -30,8 +31,8 @@ namespace GMQSA {
             return this.Q.length > 0 && this.A.length > 0;
         }
 
-        swap(): QSA {
-            let qsa = new QSA(document.createElement("div"));
+        swap(): Data {
+            let qsa = new Data(document.createElement("div"));
             qsa.Q = this.A;
             qsa.S = this.S;
             qsa.A = this.Q;
@@ -67,26 +68,48 @@ namespace GMQSA {
         }
     }
 
+    /* 目的是一轮测试完，再进行下一轮，防止随机数不均匀，有些条目总也测试不到的情况 */
+    class Test {
+        list: Data[] = [];
+
+        constructor() {
+            this.list = GlobalList;
+        }
+
+        random(): Data {
+            let index = Math.floor((Math.random() * this.list.length));
+            let d = this.list[index];
+            this.list.splice(index, 1)
+            return d;
+        }
+
+        empty(): boolean {
+            return this.list.length == 0;
+        }
+    }
+
     export function init(showButton: boolean): void {
         let elementList = Array.from(document.getElementsByClassName("QSA"));
         elementList.forEach((e) => {
-            let w = new QSA(e);
+            let w = new Data(e);
             if (w.validate()) {
                 e.innerHTML = w.html();
-                GlobalQSAList.push(w);
-                if (w.NeedSwap) GlobalQSAList.push(w.swap());
+                GlobalList.push(w);
+                if (w.NeedSwap) GlobalList.push(w.swap());
             } else {
                 e.innerHTML += `<span style="background-color: red;">validate error<span >`;
             }
         })
-        if (GlobalQSAList.length == 0) {
+        if (GlobalList.length == 0) {
             return
         }
 
-        if (showButton) initButton(GlobalQSAList);
+        if (showButton) initButton();
     }
 
-    function initButton(wortList: QSA[]): void {
+    function initButton(): void {
+        if (GlobalList.length == 0) return;
+
         let div = document.createElement("div");
         div.appendChild(newButton("QSA测试"));
         div.appendChild(document.createElement("br"));
@@ -118,17 +141,6 @@ namespace GMQSA {
         return button;
     }
 
-    function genTest(): void {
-        let list = GlobalQSAList;
-        let w = list[Math.floor((Math.random() * list.length))];
-        // @ts-ignore
-        //$("#modal1-question").html(w.Q + `<br/>` + w.S);
-        $("#modal1-question").html(w.getQuestion());
-        // @ts-ignore
-        //$("#modal1-answer").html(w.A);
-        $("#modal1-answer").html(w.getAnswer());
-    }
-
     export function hiddenAnswer() {
         // @ts-ignore
         $("#modal1-answer").css("visibility", "hidden");
@@ -145,7 +157,18 @@ namespace GMQSA {
         $("#modal1-show").attr("onclick", "GMQSA.showAnswer()");
         // @ts-ignore
         $("#modal1-next").attr("onclick", `GMQSA.nextTest()`);
-        genTest();
+
+        if (!GlobalTest || GlobalTest.empty()) {
+            GlobalTest = new Test();
+        }
+        let d = GlobalTest.random();
+        if (d) {
+            // @ts-ignore
+            $("#modal1-question").html(d.getQuestion());
+            // @ts-ignore
+            $("#modal1-answer").html(d.getAnswer());
+        }
+
         // @ts-ignore
         $("#modal1").modal('show');
     }

@@ -1,8 +1,9 @@
 // @ts-ignore
 namespace GMWort {
-    let GlobalWortList = new Array<Wort>();
+    let GlobalList = new Array<Data>();
+    let GlobalTestMap = new Map<string, Test>();
 
-    class Wort {
+    class Data {
         Kapitel: string = "";
         Typ: string = "";
         Data: string[] = new Array<string>();
@@ -81,29 +82,89 @@ namespace GMWort {
             innerHTML += `</div>`;
             return innerHTML;
         }
+
+        getQuestion(): string {
+            let qList = new Array<string>();
+            let addQuestion = function (...textList: string[]): void {
+                textList.forEach((v) => {
+                    if (v.length > 0) qList.push(v);
+                })
+            }
+            switch (this.Typ) {
+                case "Verb":
+                    addQuestion(this.Data[0], this.Data[3]);
+                    break;
+                case "Nomen":
+                    addQuestion(this.Data[1], this.Data[3]);
+                    break;
+                case "2":
+                    addQuestion(this.Data[0], this.Data[1]);
+                    break;
+                case "einfach":
+                    if (this.Data[0].match("^(der|die|das) .+")) {
+                        addQuestion(this.Data[0].substring(4), this.Data[1]);
+                    } else {
+                        addQuestion(this.Data[0], this.Data[1]);
+                    }
+                    break;
+            }
+            return qList[Math.floor((Math.random() * qList.length))];
+        }
+
+        getAnswer(): string {
+            return `${this.Data.join(", ")}<br/>${this.Beispiel}<br/>${this.Notiz}`;
+        }
+    }
+
+
+    /* 目的是一轮测试完，再进行下一轮，防止随机数不均匀，有些条目总也测试不到的情况 */
+    class Test {
+        list: Data[] = [];
+
+        constructor(Kapitel: string) {
+            this.list = GlobalList;
+            if (Kapitel.length > 0) {
+                this.list.filter((v) => {
+                    return v.Kapitel == Kapitel;
+                });
+            }
+        }
+
+        random(): Data {
+            let index = Math.floor((Math.random() * this.list.length));
+            let d = this.list[index];
+            this.list.splice(index, 1)
+            return d;
+        }
+
+        empty(): boolean {
+            return this.list.length == 0;
+        }
     }
 
     export function init(showButton: boolean): void {
         let elementList = Array.from(document.getElementsByClassName("Wort"));
         elementList.forEach((e) => {
-            let w = new Wort(e);
+            let w = new Data(e);
             if (w.validate()) {
                 e.innerHTML = w.html();
-                GlobalWortList.push(w);
+                GlobalList.push(w);
             } else {
                 e.innerHTML += `<span style="background-color: red;">validate error<span >`;
             }
         })
-        if (GlobalWortList.length == 0) {
+        if (GlobalList.length == 0) {
             return
         }
 
-        if (showButton) initButton(GlobalWortList);
+        if (showButton) initButton();
     }
 
-    function initButton(wortList: Wort[]): void {
+    function initButton(): void {
+        if (GlobalList.length == 0) return;
+
         let buttonSet = new Set<string>;
-        wortList.forEach((v) => {
+        GlobalList.forEach((v) => {
             buttonSet.add(v.Kapitel);
         })
         buttonSet.delete("");
@@ -142,46 +203,6 @@ namespace GMWort {
         return button;
     }
 
-    function genTest(Kapitel: string): void {
-        let list = GlobalWortList;
-        if (Kapitel.length > 0) {
-            list.filter((v) => {
-                return v.Kapitel == Kapitel;
-            });
-        }
-        let w = list[Math.floor((Math.random() * list.length))];
-        let questionList = new Array<string>();
-        let addQuestion = function (...textList: string[]): void {
-            textList.forEach((v) => {
-                if (v.length > 0) questionList.push(v);
-            })
-        }
-        switch (w.Typ) {
-            case "Verb":
-                addQuestion(w.Data[0], w.Data[3]);
-                break;
-            case "Nomen":
-                addQuestion(w.Data[1], w.Data[3]);
-                break;
-            case "2":
-                addQuestion(w.Data[0], w.Data[1]);
-                break;
-            case "einfach":
-                if (w.Data[0].match("^(der|die|das) .+")) {
-                    addQuestion(w.Data[0].substring(4), w.Data[1]);
-                } else {
-                    addQuestion(w.Data[0], w.Data[1]);
-                }
-                break;
-        }
-        var question = questionList[Math.floor((Math.random() * questionList.length))];
-        let answer = `${w.Data.join(", ")}<br/>${w.Beispiel}<br/>${w.Notiz}`;
-        // @ts-ignore
-        $("#modal1-question").html(question);
-        // @ts-ignore
-        $("#modal1-answer").html(answer);
-    }
-
     export function hiddenAnswer() {
         // @ts-ignore
         $("#modal1-answer").css("visibility", "hidden");
@@ -198,7 +219,18 @@ namespace GMWort {
         $("#modal1-show").attr("onclick", "GMWort.showAnswer()");
         // @ts-ignore
         $("#modal1-next").attr("onclick", `GMWort.nextTest("${Kapitel}")`);
-        genTest(Kapitel);
+
+        if (!GlobalTestMap.has(Kapitel) || GlobalTestMap.get(Kapitel)?.empty()) {
+            GlobalTestMap.set(Kapitel, new Test(Kapitel));
+        }
+        let d = GlobalTestMap.get(Kapitel)?.random();
+        if (d) {
+            // @ts-ignore
+            $("#modal1-question").html(d.getQuestion());
+            // @ts-ignore
+            $("#modal1-answer").html(d.getAnswer());
+        }
+
         // @ts-ignore
         $("#modal1").modal('show');
     }

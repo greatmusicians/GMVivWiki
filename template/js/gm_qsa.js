@@ -1,9 +1,10 @@
 // @ts-ignore
 var GMQSA;
 (function (GMQSA) {
-    var GlobalQSAList = new Array();
-    var QSA = /** @class */ (function () {
-        function QSA(e) {
+    var GlobalList = new Array();
+    var GlobalTest;
+    var Data = /** @class */ (function () {
+        function Data(e) {
             var _this = this;
             this.Q = "";
             this.S = "";
@@ -25,17 +26,17 @@ var GMQSA;
                 }
             });
         }
-        QSA.prototype.validate = function () {
+        Data.prototype.validate = function () {
             return this.Q.length > 0 && this.A.length > 0;
         };
-        QSA.prototype.swap = function () {
-            var qsa = new QSA(document.createElement("div"));
+        Data.prototype.swap = function () {
+            var qsa = new Data(document.createElement("div"));
             qsa.Q = this.A;
             qsa.S = this.S;
             qsa.A = this.Q;
             return qsa;
         };
-        QSA.prototype.html = function () {
+        Data.prototype.html = function () {
             var innerHTML = "<div class=\"qsa\">";
             if (this.Q != "") {
                 innerHTML += "<div class=\"qsa-q\">".concat(this.Q, "</div>");
@@ -49,41 +50,60 @@ var GMQSA;
             innerHTML += "</div>";
             return innerHTML;
         };
-        QSA.prototype.getQuestion = function () {
+        Data.prototype.getQuestion = function () {
             var innerHTML = "<div style=\"display: flex; flex-direction: column;\">";
             innerHTML += "<div>".concat(this.Q, "</div>");
             innerHTML += "<div><font color=#A52A2A >".concat(this.S, "</font></div>");
             innerHTML += "</div>";
             return innerHTML;
         };
-        QSA.prototype.getAnswer = function () {
+        Data.prototype.getAnswer = function () {
             var innerHTML = "".concat(this.A);
             return innerHTML;
         };
-        return QSA;
+        return Data;
+    }());
+    /* 目的是一轮测试完，再进行下一轮，防止随机数不均匀，有些条目总也测试不到的情况 */
+    var Test = /** @class */ (function () {
+        function Test() {
+            this.list = [];
+            this.list = GlobalList;
+        }
+        Test.prototype.random = function () {
+            var index = Math.floor((Math.random() * this.list.length));
+            var d = this.list[index];
+            this.list.splice(index, 1);
+            return d;
+        };
+        Test.prototype.empty = function () {
+            return this.list.length == 0;
+        };
+        return Test;
     }());
     function init(showButton) {
         var elementList = Array.from(document.getElementsByClassName("QSA"));
         elementList.forEach(function (e) {
-            var w = new QSA(e);
+            var w = new Data(e);
             if (w.validate()) {
                 e.innerHTML = w.html();
-                GlobalQSAList.push(w);
+                GlobalList.push(w);
                 if (w.NeedSwap)
-                    GlobalQSAList.push(w.swap());
+                    GlobalList.push(w.swap());
             }
             else {
                 e.innerHTML += "<span style=\"background-color: red;\">validate error<span >";
             }
         });
-        if (GlobalQSAList.length == 0) {
+        if (GlobalList.length == 0) {
             return;
         }
         if (showButton)
-            initButton(GlobalQSAList);
+            initButton();
     }
     GMQSA.init = init;
-    function initButton(wortList) {
+    function initButton() {
+        if (GlobalList.length == 0)
+            return;
         var div = document.createElement("div");
         div.appendChild(newButton("QSA测试"));
         div.appendChild(document.createElement("br"));
@@ -114,16 +134,6 @@ var GMQSA;
         button.innerHTML = text;
         return button;
     }
-    function genTest() {
-        var list = GlobalQSAList;
-        var w = list[Math.floor((Math.random() * list.length))];
-        // @ts-ignore
-        //$("#modal1-question").html(w.Q + `<br/>` + w.S);
-        $("#modal1-question").html(w.getQuestion());
-        // @ts-ignore
-        //$("#modal1-answer").html(w.A);
-        $("#modal1-answer").html(w.getAnswer());
-    }
     function hiddenAnswer() {
         // @ts-ignore
         $("#modal1-answer").css("visibility", "hidden");
@@ -140,7 +150,16 @@ var GMQSA;
         $("#modal1-show").attr("onclick", "GMQSA.showAnswer()");
         // @ts-ignore
         $("#modal1-next").attr("onclick", "GMQSA.nextTest()");
-        genTest();
+        if (!GlobalTest || GlobalTest.empty()) {
+            GlobalTest = new Test();
+        }
+        var d = GlobalTest.random();
+        if (d) {
+            // @ts-ignore
+            $("#modal1-question").html(d.getQuestion());
+            // @ts-ignore
+            $("#modal1-answer").html(d.getAnswer());
+        }
         // @ts-ignore
         $("#modal1").modal('show');
     }
